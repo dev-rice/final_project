@@ -1,49 +1,38 @@
+require('Ball')
+require('BoxCollider')
+
 function love.load()
-	ball = love.graphics.newImage("ball.png")
-	paddle = love.graphics.newImage("paddle.png")
-
-	sound = love.audio.newSource("wall_hit.wav", "static")
-
 	canvas_width = love.graphics.getWidth()
 	canvas_height = love.graphics.getHeight()
 
-	ball_width = ball:getWidth()
-	ball_height = ball:getHeight()
+	paddle_x = 50
+	paddle_y = 10
 
-	paddle_width = paddle:getWidth()
-	paddle_height = paddle:getHeight()
+	ball = Ball.create(canvas_width / 2, canvas_height / 2)
+	box = BoxCollider.create(0, 0, canvas_width, canvas_height)
+	paddle_collider = BoxCollider.create(paddle_x, paddle_y, paddle_x, paddle_y + 100)
 
-	ballx = (canvas_width / 2) - (ball_width / 2)
-	bally = (canvas_height / 2) - (ball_height / 2)
-
-	dx = 0
-	dy = 0
-
-	setRandomDirection()
+	boxes = {box, paddle_collider}
 
 end
 
 function love.update(dt)
 
-	if ((ballx + ball_width) > canvas_width or ballx < 0) then
-		dx = -dx
-		sound:play()
-	elseif ((bally + ball_height) > canvas_height or bally < 0) then
-		dy = -dy
-		sound:play()
+	ball:move(dt, boxes)
+
+	if love.keyboard.isDown("up") then
+		paddle_y = paddle_y - 300 * dt
+	elseif love.keyboard.isDown("down") then
+		paddle_y = paddle_y + 300 * dt
 	end
 
-	ballx = ballx + dx * dt
-	bally = bally + dy * dt
+	paddle_collider:move(paddle_x, paddle_y)
+
 end
 
 function love.draw()
-	love.graphics.draw(ball, ballx, bally)
-	love.graphics.draw(paddle, 0, canvas_height / 2 - paddle_height / 2)
-	love.graphics.draw(paddle, canvas_width - paddle_width, canvas_height / 2 - paddle_width / 2)
+	box:draw()
+	paddle_collider:draw()
+	ball:draw()
 end
 
-function setRandomDirection()
-	dx = math.random(100, 250)
-	dy = math.random(100, 250)
-end
